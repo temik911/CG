@@ -132,4 +132,21 @@ public class RangeTree {
         root = null;
     }
     
+    public void clearAnswer() {
+        answer.clear();
+    }
+    
+    public Vector<Point> getPoints(Node h, Vector<Point> points) {
+        if (h != null) {
+            points.add(h.value);
+            getPoints(h.left, points);
+            getPoints(h.right, points);
+        }
+        return points;
+    }
+    
+    public Node getRoot(){
+        return root;
+    }
+    
 }

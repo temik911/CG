@@ -12,6 +12,7 @@ public class RangeTreeVisual extends Canvas {
     private boolean isQuery = false;
     private boolean isFirst = true;
     private boolean isEnd = false;
+    private boolean isRepaint = false;
     
     private int x, y;
     private Point left;
@@ -52,36 +53,57 @@ public class RangeTreeVisual extends Canvas {
                     isQuery = false;
                     isFirst = true;
                     rt.clear();
+                    isEnd = true;
                     repaint();
-                    rt.clear();
+                }
+                if (e.getKeyChar() == 'r') {
+                    isRepaint = true;
+                    repaint();
                 }
             }
         });
     }
     
     public void update(Graphics g) {
-        if (!isEnd) {
-            if (!isQuery) {
-                g.setColor(Color.BLACK);
-                g.fillOval(x, y, 4, 4);
-            } else {
-                if (!isFirst) {
-                    g.drawLine(query.getIntervalX().getLow(), query.getIntervalY().getLow(), 
-                               query.getIntervalX().getHigh(), query.getIntervalY().getLow());
-                    g.drawLine(query.getIntervalX().getLow(), query.getIntervalY().getLow(), 
-                               query.getIntervalX().getLow(), query.getIntervalY().getHigh());
-                    g.drawLine(query.getIntervalX().getHigh(), query.getIntervalY().getHigh(), 
-                               query.getIntervalX().getLow(), query.getIntervalY().getHigh());
-                    g.drawLine(query.getIntervalX().getHigh(), query.getIntervalY().getHigh(), 
-                               query.getIntervalX().getHigh(), query.getIntervalY().getLow());
-                    rt.query2D(query);
-                    print(g);
-                    isEnd = true;
+        if (!isRepaint) {
+            if (!isEnd) {
+                if (!isQuery) {
+                    g.setColor(Color.BLACK);
+                    g.fillOval(x, y, 4, 4);
+                } else {
+                    if (!isFirst) {
+                        g.drawLine(query.getIntervalX().getLow(), query.getIntervalY().getLow(), 
+                                   query.getIntervalX().getHigh(), query.getIntervalY().getLow());
+                        g.drawLine(query.getIntervalX().getLow(), query.getIntervalY().getLow(), 
+                                   query.getIntervalX().getLow(), query.getIntervalY().getHigh());
+                        g.drawLine(query.getIntervalX().getHigh(), query.getIntervalY().getHigh(), 
+                                   query.getIntervalX().getLow(), query.getIntervalY().getHigh());
+                        g.drawLine(query.getIntervalX().getHigh(), query.getIntervalY().getHigh(), 
+                                   query.getIntervalX().getHigh(), query.getIntervalY().getLow());
+                        rt.query2D(query);
+                        print(g);
+                        isEnd = true;
+                    }
                 }
+            } else {
+                g.clearRect(0, 0, getWidth(), getHeight());
+                isEnd = false;
             }
         } else {
             g.clearRect(0, 0, getWidth(), getHeight());
+            Vector<Point> points = new Vector<Point>();
+            points = rt.getPoints(rt.getRoot(), points);
+            Iterator<Point> i = points.listIterator();
+            Point point;
+            while (i.hasNext()) {
+                point = i.next();
+                g.fillOval(point.getX(), point.getY(), 4, 4);
+            }
+            rt.clearAnswer();
+            isRepaint = false;
+            isQuery = false;
             isEnd = false;
+            isFirst = true;
         }
     }
     public void print(Graphics g) {
