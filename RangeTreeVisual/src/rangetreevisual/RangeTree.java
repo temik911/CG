@@ -113,15 +113,74 @@ public class RangeTree {
     }
     
     private void enumerate(Node h, Interval2D rect) {
+        Interval intervalY = rect.getIntervalY();
+        while (h != null && !intervalY.contains(h.value.getY())) {
+            if (intervalY.getHigh() <= h.value.getY()) {
+                h = h.left;
+            } else {
+                if (h.value.getY() <= intervalY.getLow()) {
+                    h = h.right;
+                }
+            }
+        }
         if (h == null) {
             return;
         }
         if (rect.contains(h.value)) {
             answer.add(h.value);
         }
-        enumerate(h.left, rect);
-        enumerate(h.right, rect);
+
+        enumerateL(h.left,  rect);
+        enumerateR(h.right, rect);
     }
+    
+    private void enumerateL(Node h, Interval2D rect) {
+        if (h == null) {
+            return;
+        }
+        if (rect.contains(h.value)) {
+            answer.add(h.value);
+        }
+        if (h.value.getY() >= rect.getIntervalY().getLow()) {
+                if (h.right != null) {
+                    addToAns(h.right);
+                }
+                enumerateL(h.left, rect);
+        } else {
+            enumerateL(h.right, rect);
+        }
+    }
+
+    private void enumerateR(Node h, Interval2D rect) {
+        if (h == null) {
+            return;
+        }
+        if (rect.contains(h.value)) {
+            answer.add(h.value);
+        }
+        if (rect.getIntervalY().getHigh() > h.value.getY()) {
+            if (h.left != null) {
+                addToAns(h.left);
+            }
+            enumerateR(h.right, rect);
+        } else {
+            enumerateR(h.left, rect);
+        }
+    }
+    
+    private void addToAns(Node h) {
+        if (h == null) {
+            return;
+        }
+        if (h.left != null) {
+            addToAns(h.left);
+        }
+        if (h.right != null) {
+            addToAns(h.right);
+        }
+        answer.add(h.value);
+    }
+    
     
     public Vector<Point> getAnswer() {
         return answer;

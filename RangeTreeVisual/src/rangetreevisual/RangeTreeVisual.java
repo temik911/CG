@@ -2,7 +2,10 @@ package rangetreevisual;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Iterator;
+import java.util.Scanner;
 import java.util.Vector;
 
 public class RangeTreeVisual extends Canvas {
@@ -118,17 +121,43 @@ public class RangeTreeVisual extends Canvas {
         
     }
     
-    public static void main(String[] args) {
-        final Frame f = new Frame();
-        f.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                f.dispose();
+    public static void main(String[] args) throws FileNotFoundException {
+        if (args.length == 0) {
+            final Frame f = new Frame();
+            f.addWindowListener(new WindowAdapter() {
+                public void windowClosing(WindowEvent e) {
+                    f.dispose();
+                }
+            });
+            f.setSize(HEIGHT, WIDHT);
+            final Canvas c = new RangeTreeVisual();
+            f.add(c);
+            f.setVisible(true);
+        } else {
+            if (args.length == 1) {
+                File file = new File(args[0]);
+                String s;
+                Scanner scannerLine = new Scanner(file);
+                Scanner scanner = new Scanner(scannerLine.nextLine());
+                int n = scanner.nextInt();
+                for (int i = 0; i < n; i++) {
+                    s = scannerLine.nextLine();
+                    s = s.replace('(', ' ').replace(',', ' ').replace(')', ' ');
+                    scanner = new Scanner(s);
+                    rt.insert(new Point(scanner.nextInt(),scanner.nextInt()));
+                }
+                scanner = new Scanner(scannerLine.nextLine());
+                int m = scanner.nextInt();
+                for (int i = 0; i < m; i++) {
+                    s = scannerLine.nextLine();
+                    s = s.replace('(', ' ').replace(',', ' ').replace(')', ' ');
+                    scanner = new Scanner(s);
+                    rt.query2D(new Interval2D(new Point(scanner.nextInt(),scanner.nextInt()),
+                                              new Point(scanner.nextInt(),scanner.nextInt())));
+                    System.out.println(rt.getAnswer().size());
+                    rt.clearAnswer();
+                }
             }
-        });
-        f.setSize(HEIGHT, WIDHT);
-        final Canvas c = new RangeTreeVisual();
-        f.add(c);
-        f.setVisible(true);
-        
+        }
     }
 }
