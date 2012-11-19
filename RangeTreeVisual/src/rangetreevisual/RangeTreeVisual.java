@@ -147,9 +147,6 @@ public class RangeTreeVisual extends Canvas {
                 for (int i = 0; i < n; i++) {
                     s = scannerLine.nextLine();
                     s = s.replace("(", "").replace(',', ' ').replace(")", "");
-                    if (i%5000==0) {
-                        System.out.println("Line " +i);
-                    }
                     k3 = s.indexOf(" ");
                     k1 = Integer.parseInt(s.substring(0, k3));
                     k2 = Integer.parseInt(s.substring(k3+1));

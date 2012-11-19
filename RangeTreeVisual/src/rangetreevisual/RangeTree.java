@@ -30,9 +30,6 @@ public class RangeTree {
         int x;
         for (int i = 0; i < points.size(); i++) {
             insertPoint(root, points.get(i));
-            if (i%5000==0) {
-                        System.out.println("Line " +i);
-                    }
         }
     }
     
