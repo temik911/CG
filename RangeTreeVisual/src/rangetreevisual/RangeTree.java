@@ -60,69 +60,6 @@ public class RangeTree {
         cur.right = createTree(cur.right, points, m, l);
         return cur;  
     }
-    /*
-    private Node insert(Node par, Node cur, Point p) {
-/*      Node r = new Node(p);
-        r.bst = new SecondaryTree();
-        r.bst.put(p);
-        if (cur == null) {
-            root = r;
-            return;
-        }
-        while (true) {
-
-            cur.bst.put(p);
-            if (p.getX() == cur.value.getX()) {
-                return;
-            }
-            if (p.getX() < cur.value.getX()) {
-                if (cur.left == null) {            
-                    cur.left = r;
-                    return;
-                } else {
-                    cur = cur.left;
-                }
-            }
-            if (p.getX() > cur.value.getX()) {
-                if (cur.right == null) {
-                    cur.right = r;
-                    return;
-                } else {
-                    cur = cur.right;
-                }
-            }
-        }
-        if (cur == null) {
-            Node r = new Node(p);
-            return r;
-        }
-        if (p.getX() <= cur.value.getX()) {
-            cur.left  = insert(cur, cur.left,  p);
-            balance(cur);
-        } else {
-            cur.right = insert(cur, cur.right, p);
-        }
-        return cur;
-    }
-    
-    public void balance(Node h) {
-        if ((height(h.right) - height(h.left) == 2) && (height(h.right.left) <= height(h.right.right))) {
-            
-        }
-    }
-    
-    public int height(Node cur) {
-        if (cur == null) {
-            return 0;
-        }
-        if (height(cur.left) > height(cur.right)) {
-            return height(cur.left)+1;
-        } else {
-            return height(cur.right)+1;
-        }
-    }
-    */
-    
     
     public void query2D(Interval2D rect) {
         Interval intervalX = rect.getIntervalX();
