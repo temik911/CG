@@ -1,79 +1,143 @@
 package rangetreevisual;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Vector;
 
 public class RangeTree {
     private class Node{
-        private Point value;                   
-        private Node left;
-        private Node right;           
-        private RangeTree bst;
+        int begin;
+        int end;
+        Node left;
+        Node right;
+        SecondaryTree bst;
 
-        Node(Point p) {
-            value = p;
+        Node(int begin, int end) {
+            this.begin = begin;
+            this.end = end;
             left = null;
             right = null;
-            bst = null;
+            bst = new SecondaryTree();
         }
     }
-    private Node root;
-    private Vector<Point> answer = new Vector<Point>();;
+    public Node root;
+    private Vector<Point> answer = new Vector<Point>();
     
-    public void insert(Point p) {
-        root = insert(root, p);
+    public void insert(List<Point> points) {
+        Collections.sort(points, new Point().getXComparator());
+        root = createTree(root, points, 0, points.size()-1);
+        Node cur = root;
+        int x;
+        for (int i = 0; i < points.size(); i++) {
+            insertPoint(root, points.get(i));
+            if (i%5000==0) {
+                        System.out.println("Line " +i);
+                    }
+        }
     }
     
-    private Node insert(Node cur, Point p) {
+    public void insertPoint(Node cur, Point point) {
+        cur.bst.put(point);
+        if ((cur.left != null) && (point.getX() < cur.left.end)) {
+            insertPoint(cur.left, point);
+        } else {
+            if (cur.right != null) {
+                insertPoint(cur.right, point);
+            }
+        }
+    }
+    
+    public Node createTree(Node cur, List<Point> points, int k, int l) {
+        if (l == k) {
+            return null;
+        }
+        cur = new Node(points.get(k).getX(), points.get(l).getX());
+        int m = (k+l)/2;
+        if (l == m || k == m) {
+            return cur;
+        }
+        cur.left = createTree(cur.left, points, k, m);
+        cur.right = createTree(cur.right, points, m, l);
+        return cur;  
+    }
+    /*
+    private Node insert(Node par, Node cur, Point p) {
+/*      Node r = new Node(p);
+        r.bst = new SecondaryTree();
+        r.bst.put(p);
+        if (cur == null) {
+            root = r;
+            return;
+        }
+        while (true) {
+
+            cur.bst.put(p);
+            if (p.getX() == cur.value.getX()) {
+                return;
+            }
+            if (p.getX() < cur.value.getX()) {
+                if (cur.left == null) {            
+                    cur.left = r;
+                    return;
+                } else {
+                    cur = cur.left;
+                }
+            }
+            if (p.getX() > cur.value.getX()) {
+                if (cur.right == null) {
+                    cur.right = r;
+                    return;
+                } else {
+                    cur = cur.right;
+                }
+            }
+        }
         if (cur == null) {
             Node r = new Node(p);
-            r.bst = new RangeTree();
-            r.bst.put(p);
             return r;
         }
-        cur.bst.put(p);
         if (p.getX() <= cur.value.getX()) {
-            cur.left  = insert(cur.left,  p);
+            cur.left  = insert(cur, cur.left,  p);
+            balance(cur);
         } else {
-            cur.right = insert(cur.right, p);
+            cur.right = insert(cur, cur.right, p);
         }
         return cur;
     }
     
-    private void put(Point p) {
-        root = put(root, p);
+    public void balance(Node h) {
+        if ((height(h.right) - height(h.left) == 2) && (height(h.right.left) <= height(h.right.right))) {
+            
+        }
     }
     
-    private Node put(Node cur, Point p) {
+    public int height(Node cur) {
         if (cur == null) {
-            return new Node(p);
+            return 0;
         }
-        if (p.getY() <= cur.value.getY()) {
-            cur.left  = put(cur.left,  p);
+        if (height(cur.left) > height(cur.right)) {
+            return height(cur.left)+1;
         } else {
-            cur.right = put(cur.right, p);
+            return height(cur.right)+1;
         }
-        return cur;
     }
+    */
+    
     
     public void query2D(Interval2D rect) {
         Interval intervalX = rect.getIntervalX();
         Node h = root;
-        while (h != null && !intervalX.contains(h.value.getX())) {
-            if (intervalX.getHigh() <= h.value.getX()) {
-                h = h.left;
+        while (h != null && h.left != null && h.right != null) {
+            if (intervalX.getLow() >= h.left.end) {
+                h = h.right;
             } else {
-                if (h.value.getX() <= intervalX.getLow()) {
-                    h = h.right;
+                if (intervalX.getHigh() < h.right.begin) {
+                    h = h.left;
+                } else {
+                    break;
                 }
             }
         }
-        if (h == null) {
-            return;
-        }
-        if (rect.contains(h.value)) {
-            answer.add(h.value);
-        }
-
         queryL(h.left,  rect);
         queryR(h.right, rect);
     }
@@ -82,16 +146,17 @@ public class RangeTree {
         if (h == null) {
             return;
         }
-        if (rect.contains(h.value)) {
-            answer.add(h.value);
-        }
-        if (h.value.getX() >= rect.getIntervalX().getLow()) {
+        if (h.left != null && h.left.end > rect.getIntervalX().getLow()) {
                 if (h.right != null) {
                     enumerate(h.right.bst.root, rect);
                 }
                 queryL(h.left, rect);
         } else {
-            queryL(h.right, rect);
+            if (h.right != null) {
+                queryL(h.right, rect);
+            } else {
+                enumerate(h.bst.root, rect);
+            }
         }
     }
 
@@ -99,20 +164,21 @@ public class RangeTree {
         if (h == null) {
             return;
         }
-        if (rect.contains(h.value)) {
-            answer.add(h.value);
-        }
-        if (rect.getIntervalX().getHigh() > h.value.getX()) {
+        if (h.right != null && rect.getIntervalX().getHigh() >= h.right.begin) {
             if (h.left != null) {
                 enumerate(h.left.bst.root, rect);
             }
             queryR(h.right, rect);
         } else {
-            queryR(h.left, rect);
+            if (h.left != null) {
+                queryL(h.left, rect);
+            } else {
+                enumerate(h.bst.root, rect);
+            }
         }
     }
     
-    private void enumerate(Node h, Interval2D rect) {
+    private void enumerate(SecondaryTree.Node h, Interval2D rect) {
         Interval intervalY = rect.getIntervalY();
         while (h != null && !intervalY.contains(h.value.getY())) {
             if (intervalY.getHigh() <= h.value.getY()) {
@@ -129,12 +195,11 @@ public class RangeTree {
         if (rect.contains(h.value)) {
             answer.add(h.value);
         }
-
         enumerateL(h.left,  rect);
         enumerateR(h.right, rect);
     }
     
-    private void enumerateL(Node h, Interval2D rect) {
+    private void enumerateL(SecondaryTree.Node h, Interval2D rect) {
         if (h == null) {
             return;
         }
@@ -151,7 +216,7 @@ public class RangeTree {
         }
     }
 
-    private void enumerateR(Node h, Interval2D rect) {
+    private void enumerateR(SecondaryTree.Node h, Interval2D rect) {
         if (h == null) {
             return;
         }
@@ -168,7 +233,7 @@ public class RangeTree {
         }
     }
     
-    private void addToAns(Node h) {
+    private void addToAns(SecondaryTree.Node h) {
         if (h == null) {
             return;
         }
@@ -195,17 +260,7 @@ public class RangeTree {
         answer.clear();
     }
     
-    public Vector<Point> getPoints(Node h, Vector<Point> points) {
-        if (h != null) {
-            points.add(h.value);
-            getPoints(h.left, points);
-            getPoints(h.right, points);
-        }
-        return points;
-    }
-    
     public Node getRoot(){
         return root;
     }
-    
 }

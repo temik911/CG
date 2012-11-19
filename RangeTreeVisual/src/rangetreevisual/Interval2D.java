@@ -5,8 +5,16 @@ public class Interval2D {
     private Interval y;
     
     public Interval2D(Point left, Point right) {
-        x = new Interval(left.getX(), right.getX());
-        y = new Interval(left.getY(), right.getY());
+        if (left.getX() < right.getX()) {
+            x = new Interval(left.getX(), right.getX());
+        } else {
+            x = new Interval(right.getX(), left.getX());
+        }
+        if (left.getY() < right.getY()) {
+            y = new Interval(left.getY(), right.getY());
+        } else {
+            y = new Interval(right.getY(), left.getY());
+        }
     }
     
     public Interval getIntervalX() {
