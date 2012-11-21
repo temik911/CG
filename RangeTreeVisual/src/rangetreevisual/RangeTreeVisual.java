@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 import java.util.Scanner;
+import java.util.TreeMap;
 import java.util.Vector;
 
 public class RangeTreeVisual extends Canvas {
@@ -125,7 +126,7 @@ public class RangeTreeVisual extends Canvas {
     public static void main(String[] args) throws FileNotFoundException {
         int k1;
         int k2;
-        int k3;
+        int k3; 
         if (args.length == 0) {
             final Frame f = new Frame();
             f.addWindowListener(new WindowAdapter() {
